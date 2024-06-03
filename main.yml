@@ -1,5 +1,5 @@
 ---
-- name: "Setting up JupyterLab with Elyra globally"
+- name: "Setting up JupyterLab Elyra globally"
   hosts: localhost
   become: true
   become_user: root
@@ -7,16 +7,21 @@
     - name: Update package list
       apt:
         update_cache: yes
-      ignore_errors: true  # Allows playbook to continue even if this task fails
+      ignore_errors: true 
 
-    - name: Install python3-pip, nodejs, and npm
+    - name: Dependencies
+      apt:
+        name: -f
+        state: present
+
+    - name: Install python3-pip, nodejsand npm
       apt:
         name:
           - python3-pip
           - nodejs
           - npm
         state: present
-      ignore_errors: true  # Allows playbook to continue even if this task fails
+      ignore_errors: true  
 
     - name: Upgrade pip to latest
       ansible.builtin.pip:
