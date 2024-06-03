@@ -50,7 +50,7 @@
 
     - name: Install Elyra globally
       ansible.builtin.pip:
-        name: elyra==3.15.0
+        name: elyra
         executable: pip3
 
     - name: Restart JupyterHub service
