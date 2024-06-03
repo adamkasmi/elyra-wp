@@ -21,17 +21,21 @@
         state: present
       ignore_errors: true  
 
-    - name: Install nodejs
+    - name: Install curl
       apt:
-        name: nodejs
+        name: curl
         state: present
       ignore_errors: true  
 
-    - name: Install npm
-      apt:
-        name: npm
-        state: present
-      ignore_errors: true  
+    - name: Install nvm
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        nvm install 12
+        nvm use 12
+      args:
+        executable: /bin/bash
 
     - name: Upgrade pip to latest
       ansible.builtin.pip:
