@@ -61,7 +61,7 @@
 
     - name: Install Elyra for all users in /home/
       ansible.builtin.pip:
-        name: elyra==3.15.0
+        name: elyra
         executable: pip3
       become: yes
       become_user: "{{ item }}"
