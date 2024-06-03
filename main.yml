@@ -54,6 +54,21 @@
         executable: pip3
       ignore_errors: true  
 
+    - name: Get list of home directories
+      command: ls /home
+      register: home_dirs
+      ignore_errors: true
+
+    - name: Install Elyra for all users in /home/
+      ansible.builtin.pip:
+        name: elyra==3.15.0
+        executable: pip3
+      become: yes
+      become_user: "{{ item }}"
+      loop: "{{ home_dirs.stdout_lines }}"
+      when: home_dirs.stdout_lines is defined and home_dirs.stdout_lines | length > 0  # Ensure loop has items
+      ignore_errors: true
+
     - name: Restart JupyterHub service
       systemd:
         name: jupyterhub
