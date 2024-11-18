@@ -48,7 +48,7 @@
         name: jupyterlab==3.2.1
         executable: pip3
 
-    - name: Install Elyra globally (Ignore > pyYAML comp)
+    - name: Install Elyra globally
       ansible.builtin.pip:
         name: elyra
         executable: pip3
