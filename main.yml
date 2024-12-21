@@ -1,75 +1,43 @@
 ---
-- name: "Setting up JupyterLab Elyra globally"
+- name: "Deploying System with Elyra"
   hosts: localhost
   become: true
   become_user: root
   tasks:
-    - name: Update packages
+    - name: Update package cache
       apt:
         update_cache: yes
         force_apt_get: yes
-      ignore_errors: true 
 
     - name: Fix broken dependencies and upgrade packages
       apt:
         upgrade: dist
         force_apt_get: yes
 
-    - name: Install python3-pip
+    - name: Ensure python3-pip is installed
       apt:
         name: python3-pip
         state: present
-      ignore_errors: true  
 
-    - name: Install curl
-      apt:
-        name: curl
-        state: present
-      ignore_errors: true  
-
-    - name: Install nvm
-      shell: |
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        nvm install 12
-        nvm use 12
-      args:
-        executable: /bin/bash
-
-    - name: Upgrade pip to latest
+    - name: Upgrade pip to the latest version
       ansible.builtin.pip:
         name: pip
         state: latest
         executable: pip3
 
-    - name: Install JupyterLab
-      ansible.builtin.pip:
-        name: jupyterlab==3.2.1
-        executable: pip3
-
-    - name: Install Elyra globally
+    - name: Install Elyra globally without dependency conflicts
       ansible.builtin.pip:
         name: elyra
         executable: pip3
-      ignore_errors: true  
+        extra_args: "--ignore-installed"
 
-    - name: Get list of home directories
-      command: ls /home
-      register: home_dirs
-      ignore_errors: true
+    - name: Verify Elyra installation
+      command: pip3 show elyra
+      register: elyra_installation
+      failed_when: "'elyra' not in elyra_installation.stdout"
+      changed_when: false
 
-    - name: Install Elyra for all users in /home/
-      ansible.builtin.pip:
-        name: elyra
-        executable: pip3
-      become: yes
-      become_user: "{{ item }}"
-      loop: "{{ home_dirs.stdout_lines }}"
-      when: home_dirs.stdout_lines is defined and home_dirs.stdout_lines | length > 0  # Ensure loop has items
-      ignore_errors: true
-
-    - name: Restart JupyterHub service
-      systemd:
-        name: jupyterhub
-        state: restarted
+    - name: Confirm Elyra version
+      command: jupyter labextension list
+      register: labextensions
+      changed_when: false
